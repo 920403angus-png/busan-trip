@@ -324,7 +324,7 @@
     
     <div class="card only-master" style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-color:#BFDBFE;">
       <div class="section-title" style="color: #1E40AF;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 行程智慧匯入</div>
-      <p style="font-size:calc(12px * var(--font-scale)); color:#1E3A8A; margin-top:-10px; margin-bottom:12px; line-height:1.6;">支援貼上文字、上傳截圖/照片、PDF 或 Word 行程單。AI 會自動判斷有幾個行程活動、幾點、分類、地點、交通方式、花費等細節，不會整段塞進備註。日期支援 11/12、Day2、11月12日、週三 等多種寫法，以內容判斷為準，不受目前頁籤限制；超出範圍或時間重複的項目會另外列出讓你確認。</p>
+      <p style="font-size:calc(12px * var(--font-scale)); color:#1E3A8A; margin-top:-10px; margin-bottom:12px; line-height:1.6;">這個頁面部署在外部網站，無法直接連線 AI，所以分兩步：先複製提示詞貼到你常用的 ChatGPT／Claude／Gemini 對話中，再把 AI 的回答貼回這裡解析。支援貼上文字、圖片、PDF 或 Word。日期支援 11/12、Day2、11月12日、週三 等多種寫法；超出範圍或時間重複的項目會另外列出讓你確認。</p>
 
       <div class="calc-tabs" id="itin-ai-mode-tabs" style="margin-bottom:12px;">
         <button class="tab-btn-sub active" data-mode="text" onclick="switchItinAiMode('text', this)">貼上文字</button>
@@ -345,11 +345,13 @@ Day2 12:00 outlet購物，預計逛一小時
         <input type="file" id="itin-ai-image-input" accept="image/*" style="display:none;" onchange="handleItinFileSelect(event,'image')">
         <button type="button" class="ghost-btn" onclick="document.getElementById('itin-ai-image-input').click()"><i class="fa-solid fa-image"></i> 選擇行程截圖或照片</button>
         <div id="itin-ai-image-filename" style="font-size:calc(12px * var(--font-scale)); color:#1E3A8A; margin-top:8px; text-align:center;"></div>
+        <p style="font-size:calc(11px * var(--font-scale)); color:#1E3A8A; text-align:center; margin:8px 0 0;">選好後記得在AI對話中一併附上這張圖片</p>
       </div>
       <div id="itin-ai-mode-pdf" style="display:none;">
         <input type="file" id="itin-ai-pdf-input" accept="application/pdf" style="display:none;" onchange="handleItinFileSelect(event,'pdf')">
         <button type="button" class="ghost-btn" onclick="document.getElementById('itin-ai-pdf-input').click()"><i class="fa-solid fa-file-pdf"></i> 選擇 PDF 檔案</button>
         <div id="itin-ai-pdf-filename" style="font-size:calc(12px * var(--font-scale)); color:#1E3A8A; margin-top:8px; text-align:center;"></div>
+        <p style="font-size:calc(11px * var(--font-scale)); color:#1E3A8A; text-align:center; margin:8px 0 0;">選好後記得在AI對話中一併附上這份 PDF</p>
       </div>
       <div id="itin-ai-mode-word" style="display:none;">
         <input type="file" id="itin-ai-word-input" accept=".docx" style="display:none;" onchange="handleItinFileSelect(event,'word')">
@@ -357,8 +359,23 @@ Day2 12:00 outlet購物，預計逛一小時
         <div id="itin-ai-word-filename" style="font-size:calc(12px * var(--font-scale)); color:#1E3A8A; margin-top:8px; text-align:center;"></div>
       </div>
 
-      <button class="save-btn" style="background:#2563EB; font-size:calc(13px * var(--font-scale)); margin-top:12px;" onclick="parseItinWithAI()"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 智慧解析並排入行程</button>
+      <div style="display:flex; align-items:center; gap:8px; margin:14px 0 6px;">
+        <div style="width:20px; height:20px; border-radius:50%; background:#2563EB; color:#fff; font-size:calc(11px * var(--font-scale)); font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+        <span style="font-size:calc(12.5px * var(--font-scale)); color:#1E3A8A; font-weight:700;">複製提示詞，貼到你的 AI 對話中</span>
+      </div>
+      <button class="save-btn" style="background:#2563EB; font-size:calc(13px * var(--font-scale));" onclick="copyItinAiPrompt()"><i class="fa-solid fa-copy"></i> 複製 AI 提示詞</button>
       <div id="itin-ai-status" style="display:none; margin-top:10px;"></div>
+
+      <div style="display:flex; align-items:center; gap:8px; margin:16px 0 6px;">
+        <div style="width:20px; height:20px; border-radius:50%; background:#2563EB; color:#fff; font-size:calc(11px * var(--font-scale)); font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+        <span style="font-size:calc(12.5px * var(--font-scale)); color:#1E3A8A; font-weight:700;">把 AI 的完整回答貼回這裡</span>
+      </div>
+      <textarea id="itin-ai-response-paste" placeholder="把 AI 回答的內容整段貼在這裡（應包含以 [ 開頭、] 結尾的 JSON 陣列）" style="width:100%; height:80px; border:1.5px solid #BFDBFE; border-radius:12px; padding:10px; font-size:calc(13px * var(--font-scale)); outline:none; font-family:sans-serif; box-sizing:border-box; margin-bottom:10px;"></textarea>
+      <button class="save-btn" style="background:var(--teal);" onclick="parseItinAiResponse()"><i class="fa-solid fa-check"></i> 解析並排入行程</button>
+
+      <div style="text-align:center; margin-top:14px;">
+        <button type="button" class="ghost-btn" style="font-size:calc(12px * var(--font-scale)); padding:8px;" onclick="parseItinOfflineFallback()">或使用簡易離線解析（固定格式，不需要AI）</button>
+      </div>
     </div>
 
     <div class="day-tab-row" id="itin-day-tabs" style="display:flex; gap:6px; overflow-x:auto; padding: 0 12px 14px;"></div>
@@ -391,7 +408,7 @@ Day2 12:00 outlet購物，預計逛一小時
         <button class="save-btn" style="margin-bottom:0; padding:16px 8px; font-size:calc(14.5px * var(--font-scale)); flex:1; background:linear-gradient(135deg, #7C9CBF 0%, #4A6FA1 100%); box-shadow:0 4px 12px rgba(74,111,161,0.25);" onclick="triggerReceiptCapture()"><i class="fa-solid fa-camera"></i> AI 拍照記帳</button>
       </div>
       <input type="file" id="receipt-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handleReceiptFile(event)">
-      <div id="receipt-ai-status" style="display:none; margin-bottom:15px;"></div>
+      <div id="receipt-ai-panel" style="display:none; margin-bottom:15px;"></div>
       <div id="quick-add-box" style="display:none;"></div>
     </div>
   </section>
@@ -1659,88 +1676,71 @@ ${dayContextLines}
     return instructions;
   }
 
-  async function parseItinWithAI() {
+  // Step 1：依目前模式組出完整提示詞並複製到剪貼簿（Word模式會先在本機擷取文字內容一併附上）
+  async function copyItinAiPrompt() {
     const statusEl = document.getElementById('itin-ai-status');
     const showStatus = (html) => { if (statusEl) { statusEl.style.display = 'block'; statusEl.innerHTML = html; } };
-    const showLoading = (msg) => showStatus(`<div class="card" style="text-align:center; padding:20px; border:2px solid #2563EB; margin-bottom:0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:calc(22px * var(--font-scale)); color:#2563EB;"></i><p style="margin:10px 0 0; font-size:calc(13px * var(--font-scale)); color:var(--gray);">${escapeHtml(msg)}</p></div>`);
-    const showError = (msg, offerFallback) => showStatus(`<div class="card" style="text-align:center; padding:18px; border:2px solid var(--warn-border); background:var(--warn-bg); margin-bottom:0;">
-        <i class="fa-solid fa-circle-exclamation" style="color:var(--warn); font-size:calc(20px * var(--font-scale));"></i>
-        <p style="margin:8px 0 10px; font-size:calc(13px * var(--font-scale)); color:#943126;">${escapeHtml(msg)}</p>
-        ${offerFallback ? `<button class="ghost-btn" style="border-color:#943126; color:#943126;" onclick="parseItinOfflineFallback()">改用簡易離線解析（僅支援固定格式）</button>` : ''}
-      </div>`);
+    const showLoading = (msg) => showStatus(`<div class="card" style="text-align:center; padding:18px; border:2px solid #2563EB; margin-bottom:0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:calc(20px * var(--font-scale)); color:#2563EB;"></i><p style="margin:8px 0 0; font-size:calc(13px * var(--font-scale)); color:var(--gray);">${escapeHtml(msg)}</p></div>`);
+    const showOk = (msg) => showStatus(`<div class="card" style="text-align:center; padding:16px; border:2px solid var(--teal); background:#ECFDF5; margin-bottom:0;"><i class="fa-solid fa-circle-check" style="color:var(--teal); font-size:calc(18px * var(--font-scale));"></i><p style="margin:8px 0 0; font-size:calc(13px * var(--font-scale)); color:#065F46; line-height:1.6;">${escapeHtml(msg)}</p></div>`);
+    const showErr = (msg) => showStatus(`<div class="card" style="text-align:center; padding:16px; border:2px solid var(--warn-border); background:var(--warn-bg); margin-bottom:0;"><i class="fa-solid fa-circle-exclamation" style="color:var(--warn);"></i><p style="margin:8px 0 0; font-size:calc(13px * var(--font-scale)); color:#943126;">${escapeHtml(msg)}</p></div>`);
 
-    let messageContent;
+    let promptText = '';
     try {
       if (itinAiMode === 'text') {
         const rawText = document.getElementById('ai-raw-itin-text').value.trim();
         if (!rawText) { alert('請先貼上行程文字！'); return; }
-        showLoading('AI 正在讀懂你的行程描述，請稍候...');
-        messageContent = buildItinAiInstructions(true, rawText);
-      } else if (itinAiMode === 'image') {
-        const file = itinSelectedFiles.image;
-        if (!file) { alert('請先選擇圖片！'); return; }
-        showLoading('AI 正在辨識圖片內容，請稍候...');
-        const base64Data = await fileToBase64(file);
-        messageContent = [
-          { type: 'image', source: { type: 'base64', media_type: file.type || 'image/jpeg', data: base64Data } },
-          { type: 'text', text: buildItinAiInstructions(false, '') }
-        ];
-      } else if (itinAiMode === 'pdf') {
-        const file = itinSelectedFiles.pdf;
-        if (!file) { alert('請先選擇 PDF 檔案！'); return; }
-        showLoading('AI 正在讀取 PDF 內容，請稍候...');
-        const base64Data = await fileToBase64(file);
-        messageContent = [
-          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64Data } },
-          { type: 'text', text: buildItinAiInstructions(false, '') }
-        ];
+        promptText = buildItinAiInstructions(true, rawText);
       } else if (itinAiMode === 'word') {
         const file = itinSelectedFiles.word;
         if (!file) { alert('請先選擇 Word 檔案！'); return; }
-        showLoading('正在讀取 Word 文件，請稍候...');
-        if (typeof mammoth === 'undefined') throw new Error('Word 讀取工具載入失敗，請確認網路連線後再試一次');
+        if (typeof mammoth === 'undefined') { alert('Word 讀取工具載入失敗，請確認網路連線後再試一次'); return; }
+        showLoading('正在讀取 Word 文件內容...');
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer });
         const wordText = (result.value || '').trim();
-        if (!wordText) throw new Error('無法從此 Word 檔案讀取到文字內容');
+        if (!wordText) { showErr('無法從此 Word 檔案讀取到文字內容。'); return; }
         itinLastRawTextForFallback = wordText;
-        showLoading('AI 正在讀懂 Word 文件內容，請稍候...');
-        messageContent = buildItinAiInstructions(true, wordText);
+        promptText = buildItinAiInstructions(true, wordText);
+      } else if (itinAiMode === 'image') {
+        const file = itinSelectedFiles.image;
+        if (!file) { alert('請先選擇圖片！'); return; }
+        promptText = buildItinAiInstructions(false, '') + `\n\n（請將你選擇的圖片「${file.name}」一併附加到這則訊息中再送出）`;
+      } else if (itinAiMode === 'pdf') {
+        const file = itinSelectedFiles.pdf;
+        if (!file) { alert('請先選擇 PDF 檔案！'); return; }
+        promptText = buildItinAiInstructions(false, '') + `\n\n（請將你選擇的 PDF「${file.name}」一併附加到這則訊息中再送出）`;
       } else {
         return;
       }
 
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 3000,
-          messages: [{ role: "user", content: messageContent }]
-        })
-      });
-      if (!response.ok) throw new Error(`API 回應失敗 (狀態碼 ${response.status})`);
-      const data = await response.json();
-      const textBlock = (data.content || [])
-        .map(item => (item.type === "text" ? item.text : ""))
-        .filter(Boolean)
-        .join("\n")
-        .trim();
-      const cleaned = extractJsonBlock(textBlock);
-      const items = JSON.parse(cleaned);
-      if (!Array.isArray(items) || items.length === 0) throw new Error('AI 未辨識出任何行程項目');
-
-      if (statusEl) { statusEl.style.display = 'none'; statusEl.innerHTML = ''; }
-      resetItinAiInputs();
-      finalizeParsedItems(items);
+      await navigator.clipboard.writeText(promptText);
+      const needsAttachment = (itinAiMode === 'image' || itinAiMode === 'pdf');
+      showOk(`已複製提示詞！請貼到 ChatGPT／Claude／Gemini 等你常用的 AI 對話中${needsAttachment ? '，並記得一併附上你選擇的檔案' : ''}，再把 AI 的完整回答貼到下方欄位。`);
     } catch (err) {
-      console.error('AI 行程解析失敗:', err);
-      const canFallback = (itinAiMode === 'text') || (itinAiMode === 'word' && itinLastRawTextForFallback);
-      showError('AI 解析失敗，請確認網路連線或內容是否正確，稍後再試一次。', canFallback);
+      console.error('複製提示詞失敗:', err);
+      showErr('複製失敗，可能是瀏覽器權限限制，請改為手動選取文字後自行複製。');
     }
   }
 
-  // 簡易離線解析後備方案（AI連線失敗時使用；僅支援固定格式：[日期] [時間] 標題 | 費用 xxx | 備註 xxx）
+  // Step 2：解析使用者貼回來的 AI 回答（JSON），沿用既有的分類/衝突檢查/確認流程
+  function parseItinAiResponse() {
+    const raw = document.getElementById('itin-ai-response-paste').value.trim();
+    if (!raw) { alert('請先貼上 AI 的回答！'); return; }
+    try {
+      const cleaned = extractJsonBlock(raw);
+      const items = JSON.parse(cleaned);
+      if (!Array.isArray(items) || items.length === 0) throw new Error('empty');
+      document.getElementById('itin-ai-response-paste').value = '';
+      const statusEl = document.getElementById('itin-ai-status');
+      if (statusEl) { statusEl.style.display = 'none'; statusEl.innerHTML = ''; }
+      resetItinAiInputs();
+      finalizeParsedItems(items);
+    } catch (e) {
+      alert('無法解析這段內容，請確認是否完整貼上 AI 回答的 JSON 陣列（應該是用 [ 開頭、] 結尾的內容）。');
+    }
+  }
+
+  // 簡易離線解析後備方案（不需要任何AI；僅支援固定格式：[日期] [時間] 標題 | 費用 xxx | 備註 xxx）
   function parseItinOfflineFallback() {
     const rawText = (itinAiMode === 'word' && itinLastRawTextForFallback) ? itinLastRawTextForFallback : document.getElementById('ai-raw-itin-text').value.trim();
     const statusEl = document.getElementById('itin-ai-status');
@@ -2075,61 +2075,56 @@ ${dayContextLines}
     if (input) input.click();
   }
 
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = () => reject(new Error('讀取圖片檔案失敗'));
-      reader.readAsDataURL(file);
-    });
-  }
+  let receiptSelectedFile = null;
 
-  async function handleReceiptFile(event) {
+  function handleReceiptFile(event) {
     const file = event.target.files[0];
     event.target.value = ''; // 清空以便下次可重新選同一張圖
     if (!file) return;
+    receiptSelectedFile = file;
 
+    const panel = document.getElementById('receipt-ai-panel');
+    if (!panel) return;
+    panel.style.display = 'block';
+    panel.innerHTML = `
+      <div class="card" style="border:2px solid #4A6FA1;">
+        <div style="font-size:calc(12.5px * var(--font-scale)); color:#1E3A8A; margin-bottom:10px;"><i class="fa-solid fa-circle-check" style="color:var(--teal);"></i> 已選擇：${escapeHtml(file.name)}</div>
+        <p style="font-size:calc(11.5px * var(--font-scale)); color:var(--gray); margin:0 0 10px; line-height:1.6;">這個頁面部署在外部網站，無法直接連線 AI，請複製下方提示詞，連同這張照片一起貼到你常用的 ChatGPT／Claude／Gemini 對話中，再把 AI 的完整回答貼回這裡。</p>
+        <button class="save-btn" style="background:#4A6FA1;" onclick="copyReceiptAiPrompt()"><i class="fa-solid fa-copy"></i> 複製提示詞</button>
+        <div id="receipt-ai-status" style="display:none; margin-top:10px;"></div>
+        <div class="input-label" style="margin-top:12px;">貼上 AI 的回答</div>
+        <textarea id="receipt-ai-response-paste" placeholder="把 AI 回答的內容整段貼在這裡（應包含以 [ 開頭、] 結尾的 JSON 陣列）" style="width:100%; height:70px; border:1.5px solid #C7D6E8; border-radius:12px; padding:10px; font-size:calc(13px * var(--font-scale)); outline:none; font-family:sans-serif; box-sizing:border-box; margin-bottom:10px;"></textarea>
+        <button class="save-btn" style="background:var(--teal);" onclick="parseReceiptAiResponse()"><i class="fa-solid fa-check"></i> 解析並確認明細</button>
+      </div>
+    `;
+  }
+
+  async function copyReceiptAiPrompt() {
     const statusEl = document.getElementById('receipt-ai-status');
-    statusEl.style.display = 'block';
-    statusEl.innerHTML = `<div class="card" style="text-align:center; padding:22px; border:2px solid #4A6FA1; margin-bottom:0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:calc(22px * var(--font-scale)); color:#4A6FA1;"></i><p style="margin:10px 0 0; font-size:calc(13px * var(--font-scale)); color:var(--gray);">AI 正在辨識收據內容，請稍候...</p></div>`;
-
+    const showMsg = (html) => { if (statusEl) { statusEl.style.display = 'block'; statusEl.innerHTML = html; } };
+    if (!receiptSelectedFile) { alert('請先選擇收據照片！'); return; }
     try {
-      const base64Data = await fileToBase64(file);
-      const mediaType = file.type || 'image/jpeg';
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 1500,
-          messages: [{
-            role: "user",
-            content: [
-              { type: "image", source: { type: "base64", media_type: mediaType, data: base64Data } },
-              { type: "text", text: RECEIPT_AI_PROMPT }
-            ]
-          }]
-        })
-      });
-
-      if (!response.ok) throw new Error(`API 回應失敗 (狀態碼 ${response.status})`);
-      const data = await response.json();
-      const textBlock = (data.content || [])
-        .map(item => (item.type === "text" ? item.text : ""))
-        .filter(Boolean)
-        .join("\n")
-        .trim();
-      const cleaned = extractJsonBlock(textBlock);
-      const items = JSON.parse(cleaned);
-      if (!Array.isArray(items) || items.length === 0) throw new Error('AI 未能從圖片中辨識出任何明細');
-
-      statusEl.style.display = 'none';
-      statusEl.innerHTML = '';
-      openReceiptReview(items);
+      await navigator.clipboard.writeText(RECEIPT_AI_PROMPT);
+      showMsg(`<div class="card" style="text-align:center; padding:14px; border:2px solid var(--teal); background:#ECFDF5; margin-bottom:0;"><i class="fa-solid fa-circle-check" style="color:var(--teal);"></i><p style="margin:6px 0 0; font-size:calc(12.5px * var(--font-scale)); color:#065F46; line-height:1.6;">已複製提示詞！請貼到你的 AI 對話中，記得一併附上「${escapeHtml(receiptSelectedFile.name)}」這張照片，再把回答貼回下方欄位。</p></div>`);
     } catch (err) {
-      console.error('收據辨識失敗:', err);
-      statusEl.innerHTML = `<div class="card" style="text-align:center; padding:18px; border:2px solid var(--warn-border); background:var(--warn-bg); margin-bottom:0;"><i class="fa-solid fa-circle-exclamation" style="color:var(--warn); font-size:calc(20px * var(--font-scale));"></i><p style="margin:8px 0 0; font-size:calc(13px * var(--font-scale)); color:#943126;">辨識失敗，請確認網路連線與圖片是否清晰，或改用手動輸入。</p></div>`;
+      console.error('複製提示詞失敗:', err);
+      showMsg(`<div class="card" style="text-align:center; padding:14px; border:2px solid var(--warn-border); background:var(--warn-bg); margin-bottom:0;"><i class="fa-solid fa-circle-exclamation" style="color:var(--warn);"></i><p style="margin:6px 0 0; font-size:calc(12.5px * var(--font-scale)); color:#943126;">複製失敗，請手動選取提示詞文字後自行複製。</p></div>`);
+    }
+  }
+
+  function parseReceiptAiResponse() {
+    const raw = document.getElementById('receipt-ai-response-paste').value.trim();
+    if (!raw) { alert('請先貼上 AI 的回答！'); return; }
+    try {
+      const cleaned = extractJsonBlock(raw);
+      const items = JSON.parse(cleaned);
+      if (!Array.isArray(items) || items.length === 0) throw new Error('empty');
+      const panel = document.getElementById('receipt-ai-panel');
+      if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
+      receiptSelectedFile = null;
+      openReceiptReview(items);
+    } catch (e) {
+      alert('無法解析這段內容，請確認是否完整貼上 AI 回答的 JSON 陣列（應該是用 [ 開頭、] 結尾的內容）。');
     }
   }
 
