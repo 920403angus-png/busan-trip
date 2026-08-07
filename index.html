@@ -531,6 +531,9 @@ Day2 12:00 outlet購物，預計逛一小時
       <button class="save-btn" style="flex:1" onclick="saveSettingsModalConfigs()">儲存所有設定</button>
       <button class="ghost-btn" style="flex:1" onclick="closeSettingsModal()">關閉</button>
     </div>
+    <div style="text-align:center; margin-top:14px;">
+      <span style="font-size:calc(10px * var(--font-scale)); color:#CBD5E1;">版本 <span id="app-version-tag">2026-08-07</span></span>
+    </div>
   </div>
 </div>
 
@@ -653,23 +656,32 @@ Day2 12:00 outlet購物，預計逛一小時
 <div class="guide-overlay" id="receipt-review-overlay">
   <div class="guide-content" style="max-height:88vh; overflow-y:auto; text-align:left; max-width:400px;">
     <h3 style="margin-top:0; color:var(--navy);"><i class="fa-solid fa-receipt"></i> AI 收據辨識結果</h3>
-    <p style="font-size:calc(12px * var(--font-scale)); color:var(--gray); margin-top:-6px; margin-bottom:14px; line-height:1.6;">以下欄位套用到全部項目，各項的名稱／數量／類別／金額可個別編輯或刪除，確認後點下方按鈕匯入</p>
+    <p style="font-size:calc(12px * var(--font-scale)); color:var(--gray); margin-top:-6px; margin-bottom:14px; line-height:1.6;">一張收據會建立成一筆消費紀錄，下方商品明細可展開編輯（原文＋中文翻譯、單價、數量），確認後點下方按鈕匯入</p>
 
+    <div class="input-label">消費名稱</div>
+    <input type="text" id="rr-item-name" placeholder="店家名稱或消費摘要" style="width:100%; min-width:0; padding:10px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box; margin-bottom:12px;">
+    <div class="input-label">類別</div>
+    <div class="chip-row" id="rr-cat-row" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;"></div>
     <div class="input-label">付款人</div>
     <div class="chip-row" id="rr-payer-row" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;"></div>
     <div class="input-label">付款方式</div>
     <div class="chip-row" id="rr-method-row" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;"></div>
-    <div class="input-label">幣別</div>
-    <div id="rr-currency-toggle" style="display:flex; border-radius:12px; overflow:hidden; margin-bottom:12px; width:fit-content;">
-      <button type="button" data-cur="KRW" onclick="setRrCurrency('KRW')" style="padding:9px 14px; border:none; font-weight:700; font-size:calc(13px * var(--font-scale)); cursor:pointer;">₩ 韓元</button>
-      <button type="button" data-cur="TWD" onclick="setRrCurrency('TWD')" style="padding:9px 14px; border:none; font-weight:700; font-size:calc(13px * var(--font-scale)); cursor:pointer;">NT$ 台幣</button>
+    <div class="input-label">總金額</div>
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <div id="rr-currency-toggle" style="display:flex; border-radius:12px; overflow:hidden; flex:0 0 auto;">
+        <button type="button" data-cur="KRW" onclick="setRrCurrency('KRW')" style="padding:10px 12px; border:none; font-weight:700; font-size:calc(13px * var(--font-scale)); cursor:pointer;">₩ 韓元</button>
+        <button type="button" data-cur="TWD" onclick="setRrCurrency('TWD')" style="padding:10px 12px; border:none; font-weight:700; font-size:calc(13px * var(--font-scale)); cursor:pointer;">NT$ 台幣</button>
+      </div>
+      <input type="number" id="rr-amount" inputmode="decimal" placeholder="總金額" style="flex:1; min-width:0; padding:10px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box;">
     </div>
     <div class="input-label">日期</div>
     <input type="date" id="rr-date" style="width:100%; padding:10px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box; margin-bottom:12px;">
     <div class="input-label">消費地點</div>
     <input type="text" id="rr-location" placeholder="店家或地點名稱" style="width:100%; min-width:0; padding:10px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box; margin-bottom:16px;">
 
-    <div id="receipt-review-list"></div>
+    <div class="input-label">商品明細（原文＋中文翻譯）</div>
+    <div id="receipt-items-list"></div>
+    <button type="button" class="ghost-btn" style="margin-bottom:16px; font-size:calc(12.5px * var(--font-scale)); padding:10px;" onclick="addReceiptItemRow()"><i class="fa-solid fa-plus"></i> 新增品項</button>
 
     <button class="save-btn" id="receipt-review-confirm-btn" onclick="confirmReceiptImport()">確認匯入</button>
     <button class="ghost-btn" style="margin-top:8px;" onclick="closeReceiptReview()">取消</button>
@@ -1424,7 +1436,11 @@ Day2 12:00 outlet購物，預計逛一小時
         const extraRows = ITIN_EXTRA_FIELDS.map(f => it[f.key] ? `<div class="detail-row"><i class="fa-solid ${f.icon}"></i><span><b>${f.label}：</b>${escapeHtml(it[f.key])}</span></div>` : '').join('');
         const companionsRow = companionNames.length ? `<div class="detail-row"><i class="fa-solid fa-user-group"></i><span><b>同行人：</b>${escapeHtml(companionNames.join('、'))}</span></div>` : '';
         const notesRow = it.notes ? `<div class="detail-row"><i class="fa-solid fa-message"></i><span><b>備註：</b>${escapeHtml(it.notes)}</span></div>` : '';
-        const allDetailRows = extraRows + companionsRow + notesRow;
+        const actionRow = `<div style="display:flex; gap:8px; margin-bottom:10px;">
+          <button onclick="event.stopPropagation(); openItinMap(${it.id})" style="flex:1; background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; padding:8px; border-radius:10px; font-size:calc(12px * var(--font-scale)); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;"><i class="fa-solid fa-map-location-dot"></i> 開啟地圖</button>
+          <button id="copy-name-btn-${it.id}" onclick="copyItinName(${it.id}, event)" style="flex:1; background:#F1F5F9; border:1px solid var(--line); color:var(--navy); padding:8px; border-radius:10px; font-size:calc(12px * var(--font-scale)); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;"><i class="fa-solid fa-copy"></i> 複製名稱</button>
+        </div>`;
+        const allDetailRows = actionRow + extraRows + companionsRow + notesRow;
 
         return `<div class="timeline-node">
           <div class="timeline-dot" style="${it.done ? 'background:var(--gold);' : ''}"></div>
@@ -1442,7 +1458,7 @@ Day2 12:00 outlet購物，預計逛一小時
               </div>
             </div>
             <div class="timeline-detail ${isDetailActive ? 'active' : ''}">
-              ${allDetailRows || `<span style="color:var(--gray); font-size:calc(12px * var(--font-scale));">尚無更多細節，點右上角編輯新增</span>`}
+              ${allDetailRows}
             </div>
           </div>
         </div>`;
@@ -1467,6 +1483,37 @@ Day2 12:00 outlet購物，預計逛一小時
     if (!it) return;
     it.done = !it.done;
     saveItin(); renderDayContent();
+  }
+  function openItinMap(id) {
+    const it = ensureDayArray(activeDay).find(i => i.id === id);
+    if (!it) return;
+    let url = '';
+    if (it.mapLink && /^https?:\/\//i.test(it.mapLink.trim())) {
+      url = it.mapLink.trim();
+    } else {
+      const query = (it.place || it.address || it.title || '').trim();
+      if (!query) { alert('沒有可用的地點資訊，請先在編輯裡填寫地點或地址'); return; }
+      url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    }
+    window.open(url, '_blank');
+  }
+  async function copyItinName(id, event) {
+    if (event) event.stopPropagation();
+    const it = ensureDayArray(activeDay).find(i => i.id === id);
+    if (!it) return;
+    const name = (it.place || it.title || '').trim();
+    if (!name) return;
+    try {
+      await navigator.clipboard.writeText(name);
+      const btn = document.getElementById(`copy-name-btn-${id}`);
+      if (btn) {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> 已複製';
+        setTimeout(() => { if (btn) btn.innerHTML = original; }, 1500);
+      }
+    } catch (e) {
+      alert('複製失敗，請手動選取文字複製');
+    }
   }
 
   function renderAddForm(editId) {
@@ -1626,7 +1673,6 @@ Day2 12:00 outlet購物，預計逛一小時
     openAiReview(okItems.length, flaggedItems);
   }
 
-  // ===== AI 行程文字解析（真的呼叫 Claude 理解自然語言，而非關鍵字比對） =====
   // ===== AI 行程智慧匯入（支援文字／圖片／PDF／Word，真的呼叫 Claude 理解內容，而非關鍵字比對） =====
   function switchItinAiMode(mode, btn) {
     itinAiMode = mode;
@@ -2063,12 +2109,12 @@ ${dayContextLines}
 
 
   // ===== AI 拍照辨識收據 =====
-  const RECEIPT_AI_PROMPT = `請閱讀這張收據或發票圖片。如果收據上清楚列出多項個別商品且金額分開，請將每項商品拆成獨立一筆；如果是單一消費（如單張門票、單筆服務費）或商品不易拆分，回傳一筆總額即可。
+  const RECEIPT_AI_PROMPT = `請閱讀這張收據或發票圖片，將整張收據整理成「一筆」消費紀錄（不要拆成多筆），但請列出收據上每一項個別商品的明細。
 
-只回傳一個 JSON 陣列，不要有任何其他文字、說明或 markdown 標記（不要加 \`\`\`json）。格式為：
-[{"item": "商品或消費名稱", "amount": 數字, "currency": "KRW 或 TWD 或其他幣別代碼", "category": "從飲食、交通、購物、門票景點、住宿、其他這六個選項中選一個最符合的", "date": "YYYY-MM-DD 格式，若圖片上看不出日期則回傳空字串", "location": "店家或地點名稱，若圖片上有的話"}]
+只回傳一個 JSON 物件，不要有任何其他文字、說明或 markdown 標記（不要加 \`\`\`json）。格式為：
+{"item": "這筆消費的整體名稱，例如店家名稱或消費摘要", "amount": 數字（收據上的總金額）, "currency": "KRW 或 TWD 或其他幣別代碼", "category": "從飲食、交通、購物、門票景點、住宿、其他這六個選項中選一個最符合整張收據的", "date": "YYYY-MM-DD 格式，若圖片上看不出日期則回傳空字串", "location": "店家或地點名稱，若圖片上有的話", "items": [{"nameOriginal": "商品原文名稱（收據上的原始語言，例如韓文）", "nameZh": "商品的繁體中文翻譯", "price": 數字（該項單價或小計，與外層amount同幣別）, "quantity": 數字}]}
 
-若整張圖片看起來不像收據、或完全無法辨識出金額，回傳空陣列 []。金額請取每項實際金額，不要把收據上的服務費/稅金/總計欄位重複列成另一項（除非那就是唯一能辨識的項目）。`;
+若整張圖片看起來不像收據、或完全無法辨識出金額，amount 請回傳 0，items 回傳空陣列 []。`;
 
   function triggerReceiptCapture() {
     const input = document.getElementById('receipt-file-input');
@@ -2093,7 +2139,7 @@ ${dayContextLines}
         <button class="save-btn" style="background:#4A6FA1;" onclick="copyReceiptAiPrompt()"><i class="fa-solid fa-copy"></i> 複製提示詞</button>
         <div id="receipt-ai-status" style="display:none; margin-top:10px;"></div>
         <div class="input-label" style="margin-top:12px;">貼上 AI 的回答</div>
-        <textarea id="receipt-ai-response-paste" placeholder="把 AI 回答的內容整段貼在這裡（應包含以 [ 開頭、] 結尾的 JSON 陣列）" style="width:100%; height:70px; border:1.5px solid #C7D6E8; border-radius:12px; padding:10px; font-size:calc(13px * var(--font-scale)); outline:none; font-family:sans-serif; box-sizing:border-box; margin-bottom:10px;"></textarea>
+        <textarea id="receipt-ai-response-paste" placeholder="把 AI 回答的內容整段貼在這裡（應包含以 { 開頭、} 結尾的 JSON 物件）" style="width:100%; height:70px; border:1.5px solid #C7D6E8; border-radius:12px; padding:10px; font-size:calc(13px * var(--font-scale)); outline:none; font-family:sans-serif; box-sizing:border-box; margin-bottom:10px;"></textarea>
         <button class="save-btn" style="background:var(--teal);" onclick="parseReceiptAiResponse()"><i class="fa-solid fa-check"></i> 解析並確認明細</button>
       </div>
     `;
@@ -2117,41 +2163,68 @@ ${dayContextLines}
     if (!raw) { alert('請先貼上 AI 的回答！'); return; }
     try {
       const cleaned = extractJsonBlock(raw);
-      const items = JSON.parse(cleaned);
-      if (!Array.isArray(items) || items.length === 0) throw new Error('empty');
+      const parsed = JSON.parse(cleaned);
+      const isEmpty = Array.isArray(parsed) ? parsed.length === 0 : !parsed || Object.keys(parsed).length === 0;
+      if (isEmpty) throw new Error('empty');
       const panel = document.getElementById('receipt-ai-panel');
       if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
       receiptSelectedFile = null;
-      openReceiptReview(items);
+      openReceiptReview(parsed);
     } catch (e) {
-      alert('無法解析這段內容，請確認是否完整貼上 AI 回答的 JSON 陣列（應該是用 [ 開頭、] 結尾的內容）。');
+      alert('無法解析這段內容，請確認是否完整貼上 AI 回答的內容。');
     }
   }
 
-  // ===== AI 收據辨識結果確認（可多筆，共用付款人/方式/日期/地點，逐筆可編輯名稱/數量/類別/金額） =====
-  let receiptReviewItems = [];
+  // ===== AI 收據辨識結果確認：一張收據＝一筆消費紀錄，商品明細可展開編輯（原文＋中文、單價、數量） =====
+  let receiptReviewItemsState = [];
   let rrCurrency = 'KRW';
+  let rrCategory = '其他';
+  let rrItemSeq = 0;
 
-  function openReceiptReview(items) {
-    receiptReviewItems = items.map((it, i) => ({
-      _ridx: i,
-      item: it.item || '未命名項目',
-      amount: it.amount || 0,
-      category: (it.category && EXP_CATS.includes(it.category)) ? it.category : '其他',
-      quantity: 1
-    }));
-    rrCurrency = (items[0] && (items[0].currency === 'TWD' || items[0].currency === 'KRW')) ? items[0].currency : 'KRW';
+  function openReceiptReview(data) {
+    // 兼容舊格式（AI若不小心回傳陣列）：自動合併成一筆收據＋品項明細
+    let normalized;
+    if (Array.isArray(data)) {
+      const totalAmount = data.reduce((s, it) => s + (it.amount || it.price || 0), 0);
+      const dateGuess = data.find(it => it.date && /^\d{4}-\d{2}-\d{2}$/.test(it.date));
+      const locationGuess = data.find(it => it.location);
+      normalized = {
+        item: (locationGuess && locationGuess.location) || '收據消費',
+        amount: totalAmount,
+        currency: (data[0] && data[0].currency === 'TWD') ? 'TWD' : 'KRW',
+        category: (data[0] && EXP_CATS.includes(data[0].category)) ? data[0].category : '其他',
+        date: dateGuess ? dateGuess.date : '',
+        location: locationGuess ? locationGuess.location : '',
+        items: data.map(it => ({ nameOriginal: it.item || '', nameZh: '', price: it.amount || 0, quantity: 1 }))
+      };
+    } else {
+      normalized = {
+        item: data.item || data.location || '收據消費',
+        amount: data.amount || 0,
+        currency: (data.currency === 'TWD') ? 'TWD' : 'KRW',
+        category: (data.category && EXP_CATS.includes(data.category)) ? data.category : '其他',
+        date: data.date || '',
+        location: data.location || '',
+        items: Array.isArray(data.items) ? data.items : []
+      };
+    }
+
+    rrItemSeq = 0;
+    receiptReviewItemsState = normalized.items.map(it => ({ _ridx: rrItemSeq++, nameOriginal: it.nameOriginal || '', nameZh: it.nameZh || '', price: it.price || 0, quantity: it.quantity || 1 }));
+    rrCurrency = normalized.currency;
+    rrCategory = normalized.category;
     if (!travelers.includes(qaPayer)) qaPayer = travelers[0] || '我';
 
-    const dateGuess = items.find(it => it.date && /^\d{4}-\d{2}-\d{2}$/.test(it.date));
-    document.getElementById('rr-date').value = dateGuess ? dateGuess.date : todayOrTripDate();
-    const locationGuess = items.find(it => it.location);
-    document.getElementById('rr-location').value = locationGuess ? locationGuess.location : '';
+    document.getElementById('rr-item-name').value = normalized.item;
+    document.getElementById('rr-amount').value = normalized.amount || '';
+    document.getElementById('rr-date').value = (normalized.date && /^\d{4}-\d{2}-\d{2}$/.test(normalized.date)) ? normalized.date : todayOrTripDate();
+    document.getElementById('rr-location').value = normalized.location;
 
+    renderChipRow('rr-cat-row', EXP_CATS.map(c=>`${CAT_ICON[c]} ${c}`), EXP_CATS.indexOf(rrCategory), (i)=>{rrCategory=EXP_CATS[i];});
     renderChipRow('rr-payer-row', travelers, travelers.indexOf(qaPayer), (i)=>{qaPayer=travelers[i];});
     renderChipRow('rr-method-row', QA_METHODS, QA_METHODS.indexOf(qaMethod), (i)=>{qaMethod=QA_METHODS[i];});
     syncRrCurrencyUI();
-    renderReceiptReviewList();
+    renderReceiptItemsList();
     document.getElementById('receipt-review-overlay').style.display = 'flex';
   }
 
@@ -2164,60 +2237,68 @@ ${dayContextLines}
     });
   }
 
-  function renderReceiptReviewList() {
-    const wrap = document.getElementById('receipt-review-list'); if (!wrap) return;
-    wrap.innerHTML = receiptReviewItems.map(it => `
-      <div class="card" id="rr-item-${it._ridx}" style="border:1.5px solid var(--line); padding:12px; margin-bottom:10px;">
-        <div style="display:flex; gap:8px; margin-bottom:8px;">
-          <input type="text" id="rr-name-${it._ridx}" value="${escapeHtml(it.item)}" placeholder="品項名稱" style="flex:1; min-width:0; padding:9px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box;">
-          <input type="number" id="rr-qty-${it._ridx}" min="1" value="${it.quantity}" style="flex:0 0 56px; min-width:0; padding:9px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; text-align:center;">
-          <button onclick="removeReceiptReviewItem(${it._ridx})" style="flex:0 0 auto; background:#F1F5F9; border:none; width:36px; border-radius:8px; color:var(--warn); cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+  function renderReceiptItemsList() {
+    const wrap = document.getElementById('receipt-items-list'); if (!wrap) return;
+    if (!receiptReviewItemsState.length) { wrap.innerHTML = `<p style="font-size:calc(12px * var(--font-scale)); color:var(--gray); margin:0 0 10px;">尚無商品明細，可按下方按鈕手動新增</p>`; return; }
+    wrap.innerHTML = receiptReviewItemsState.map(it => `
+      <div class="card" id="rr-item-${it._ridx}" style="border:1px solid var(--line); padding:10px; margin-bottom:8px;">
+        <div style="display:flex; gap:6px; margin-bottom:6px;">
+          <input type="text" id="rr-orig-${it._ridx}" value="${escapeHtml(it.nameOriginal)}" placeholder="原文名稱" style="flex:1; min-width:0; padding:8px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; font-size:calc(12.5px * var(--font-scale));">
+          <input type="text" id="rr-zh-${it._ridx}" value="${escapeHtml(it.nameZh)}" placeholder="中文翻譯" style="flex:1; min-width:0; padding:8px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; font-size:calc(12.5px * var(--font-scale));">
         </div>
-        <div class="chip-row" id="rr-cat-${it._ridx}" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px;"></div>
-        <input type="number" id="rr-amount-${it._ridx}" inputmode="decimal" value="${it.amount}" placeholder="金額" style="width:100%; min-width:0; padding:9px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box;">
+        <div style="display:flex; gap:6px; align-items:center;">
+          <input type="number" id="rr-price-${it._ridx}" inputmode="decimal" value="${it.price}" placeholder="價格" style="flex:1; min-width:0; padding:8px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; font-size:calc(12.5px * var(--font-scale));">
+          <input type="number" id="rr-qty-${it._ridx}" min="1" value="${it.quantity}" placeholder="數量" style="width:56px; flex-shrink:0; padding:8px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; font-size:calc(12.5px * var(--font-scale)); text-align:center;">
+          <button onclick="removeReceiptItemRow(${it._ridx})" style="flex-shrink:0; background:#F1F5F9; border:none; width:32px; height:32px; border-radius:8px; color:var(--warn); cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+        </div>
       </div>
     `).join('');
-    receiptReviewItems.forEach(it => {
-      renderChipRow(`rr-cat-${it._ridx}`, EXP_CATS.map(c=>`${CAT_ICON[c]} ${c}`), EXP_CATS.indexOf(it.category), (i)=>{ it.category = EXP_CATS[i]; });
-    });
-    const btn = document.getElementById('receipt-review-confirm-btn');
-    if (btn) btn.innerText = `確認匯入 ${receiptReviewItems.length} 筆`;
   }
 
-  function removeReceiptReviewItem(ridx) {
-    receiptReviewItems = receiptReviewItems.filter(it => it._ridx !== ridx);
-    if (receiptReviewItems.length === 0) { closeReceiptReview(); return; }
-    renderReceiptReviewList();
+  function addReceiptItemRow() {
+    receiptReviewItemsState.push({ _ridx: rrItemSeq++, nameOriginal: '', nameZh: '', price: 0, quantity: 1 });
+    renderReceiptItemsList();
+  }
+
+  function removeReceiptItemRow(ridx) {
+    receiptReviewItemsState = receiptReviewItemsState.filter(it => it._ridx !== ridx);
+    renderReceiptItemsList();
   }
 
   function confirmReceiptImport() {
-    const sharedDate = document.getElementById('rr-date').value || todayOrTripDate();
-    const sharedLocation = document.getElementById('rr-location').value.trim();
-    let count = 0;
-    receiptReviewItems.forEach(it => {
-      const nameEl = document.getElementById(`rr-name-${it._ridx}`);
+    const name = document.getElementById('rr-item-name').value.trim();
+    const amt = p(document.getElementById('rr-amount').value);
+    if (!name || !amt) { alert('請確認消費名稱與總金額都已填寫！'); return; }
+    const date = document.getElementById('rr-date').value || todayOrTripDate();
+    const location = document.getElementById('rr-location').value.trim();
+
+    const items = receiptReviewItemsState.map(it => {
+      const origEl = document.getElementById(`rr-orig-${it._ridx}`);
+      const zhEl = document.getElementById(`rr-zh-${it._ridx}`);
+      const priceEl = document.getElementById(`rr-price-${it._ridx}`);
       const qtyEl = document.getElementById(`rr-qty-${it._ridx}`);
-      const amtEl = document.getElementById(`rr-amount-${it._ridx}`);
-      const name = nameEl ? nameEl.value.trim() : it.item;
-      const amt = amtEl ? p(amtEl.value) : it.amount;
-      if (!name || !amt) return; // 略過沒填名稱或金額的項目，不強制匯入不完整資料
-      const qty = (qtyEl && parseInt(qtyEl.value,10) > 0) ? parseInt(qtyEl.value,10) : 1;
-      expenseRecords.push({
-        id: expItemSeq++, amount: amt, currency: rrCurrency, category: it.category,
-        payer: qaPayer, method: qaMethod, date: sharedDate, item: name,
-        rateAtTime: rateTWD, quantity: qty, location: sharedLocation, coupon: '', taxRefund: '', note: ''
-      });
-      count++;
+      return {
+        nameOriginal: origEl ? origEl.value.trim() : it.nameOriginal,
+        nameZh: zhEl ? zhEl.value.trim() : it.nameZh,
+        price: priceEl ? p(priceEl.value) : it.price,
+        quantity: (qtyEl && parseInt(qtyEl.value,10) > 0) ? parseInt(qtyEl.value,10) : 1
+      };
+    }).filter(it => it.nameOriginal || it.nameZh);
+
+    expenseRecords.push({
+      id: expItemSeq++, amount: amt, currency: rrCurrency, category: rrCategory,
+      payer: qaPayer, method: qaMethod, date: date, item: name,
+      rateAtTime: rateTWD, quantity: 1, location: location, coupon: '', taxRefund: '', note: '',
+      items: items
     });
     saveExpense(); renderExpenseSummary();
     closeReceiptReview();
-    if (count > 0) alert(`已成功匯入 ${count} 筆消費紀錄！`);
-    else alert('沒有可匯入的項目，請確認每筆都已填寫名稱與金額。');
+    alert('已成功匯入這筆收據消費紀錄！');
   }
 
   function closeReceiptReview() {
     document.getElementById('receipt-review-overlay').style.display = 'none';
-    receiptReviewItems = [];
+    receiptReviewItemsState = [];
   }
 
   // 將任一幣別的紀錄換算成 KRW／TWD 等值金額，用於統計加總與顯示
@@ -2283,6 +2364,21 @@ ${dayContextLines}
     const isExpanded = expandedExpenseIds.has(r.id);
     const metaBits = [`數量 ×${r.quantity||1}`, r.payer, r.method].filter(Boolean).map(escapeHtml).join(' · ');
 
+    const itemsBlock = (Array.isArray(r.items) && r.items.length) ? `
+      <div style="margin-top:8px; padding-top:10px; border-top:1px dashed var(--line);">
+        <div style="font-size:calc(11.5px * var(--font-scale)); color:var(--gray); font-weight:700; margin-bottom:8px;"><i class="fa-solid fa-list-ul"></i> 商品明細</div>
+        ${r.items.map(it => {
+          const priceKrw = isTwd ? Math.round((it.price||0) * (r.rateAtTime||rateTWD)) : Math.round(it.price||0);
+          const priceTwd = isTwd ? Math.round(it.price||0) : Math.round((it.price||0) / (r.rateAtTime||rateTWD));
+          const nameDisplay = it.nameZh ? `${escapeHtml(it.nameOriginal||'')}${it.nameOriginal?' ':''}(${escapeHtml(it.nameZh)})` : escapeHtml(it.nameOriginal || '未命名商品');
+          return `<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; font-size:calc(12px * var(--font-scale)); margin-bottom:6px;">
+            <span style="flex:1; min-width:0; color:var(--navy);">${nameDisplay}${it.quantity>1?` ×${it.quantity}`:''}</span>
+            <span style="flex-shrink:0; text-align:right;"><b style="color:var(--navy);">₩${f(priceKrw)}</b><br><small style="color:var(--gray);">≈ NT$${f(priceTwd)}</small></span>
+          </div>`;
+        }).join('')}
+      </div>
+    ` : '';
+
     const detailRows = [
       r.date ? `<div class="detail-row"><i class="fa-solid fa-calendar-day"></i><span><b>日期：</b>${escapeHtml(r.date)}</span></div>` : '',
       r.location ? `<div class="detail-row"><i class="fa-solid fa-location-dot"></i><span><b>消費地點：</b>${escapeHtml(r.location)}</span></div>` : '',
@@ -2290,7 +2386,7 @@ ${dayContextLines}
       r.taxRefund ? `<div class="detail-row"><i class="fa-solid fa-receipt"></i><span><b>退稅金額：</b>${escapeHtml(r.taxRefund)}</span></div>` : '',
       r.rateAtTime ? `<div class="detail-row"><i class="fa-solid fa-money-bill-transfer"></i><span><b>當下匯率：</b>1 TWD ≈ ${Number(r.rateAtTime).toFixed(2)} KRW</span></div>` : '',
       r.note ? `<div class="detail-row"><i class="fa-solid fa-note-sticky"></i><span><b>備註：</b>${escapeHtml(r.note)}</span></div>` : ''
-    ].filter(Boolean).join('');
+    ].filter(Boolean).join('') + itemsBlock;
 
     return `<div class="timeline-card" style="margin-bottom:10px; padding:14px; position:relative;" onclick="toggleExpenseDetail(${r.id})">
       <div class="only-master" style="position:absolute; top:10px; right:10px;">
@@ -2632,14 +2728,17 @@ ${dayContextLines}
     XLSX.utils.book_append_sheet(wb, wsItin, '每日行程');
 
     const totalKrw = expenseRecords.reduce((s,r)=>s+recordToKRW(r),0);
-    const expRows = [['日期','類別','品項','數量','原始金額','幣別','約當KRW','約當TWD','付款人','付款方式','消費地點','優惠券/折扣','退稅金額','備註']];
+    const expRows = [['日期','類別','品項','數量','原始金額','幣別','約當KRW','約當TWD','付款人','付款方式','消費地點','優惠券/折扣','退稅金額','商品明細','備註']];
     expenseRecords.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(r => {
-      expRows.push([r.date||'', r.category||'', r.item||'', r.quantity||1, r.amount||0, r.currency||'KRW', recordToKRW(r), recordToTWD(r), r.payer||'', r.method||'', r.location||'', r.coupon||'', r.taxRefund||'', r.note||'']);
+      const itemsStr = Array.isArray(r.items) && r.items.length
+        ? r.items.map(it => `${it.nameOriginal||''}${it.nameZh?`(${it.nameZh})`:''} x${it.quantity||1} ${it.price||0}`).join('; ')
+        : '';
+      expRows.push([r.date||'', r.category||'', r.item||'', r.quantity||1, r.amount||0, r.currency||'KRW', recordToKRW(r), recordToTWD(r), r.payer||'', r.method||'', r.location||'', r.coupon||'', r.taxRefund||'', itemsStr, r.note||'']);
     });
     expRows.push([]);
-    expRows.push(['', '', '總計', '', '', '', totalKrw, Math.round(totalKrw/rateTWD), '', '', '', '', '', '']);
+    expRows.push(['', '', '總計', '', '', '', totalKrw, Math.round(totalKrw/rateTWD), '', '', '', '', '', '', '']);
     const wsExp = XLSX.utils.aoa_to_sheet(expRows);
-    wsExp['!cols'] = [{wch:12},{wch:10},{wch:22},{wch:6},{wch:12},{wch:8},{wch:12},{wch:12},{wch:10},{wch:10},{wch:16},{wch:14},{wch:12},{wch:20}];
+    wsExp['!cols'] = [{wch:12},{wch:10},{wch:22},{wch:6},{wch:12},{wch:8},{wch:12},{wch:12},{wch:10},{wch:10},{wch:16},{wch:14},{wch:12},{wch:40},{wch:20}];
     XLSX.utils.book_append_sheet(wb, wsExp, '消費紀錄');
 
     const memberTotals = {};
