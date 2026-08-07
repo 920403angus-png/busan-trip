@@ -532,7 +532,7 @@ Day2 12:00 outlet購物，預計逛一小時
       <button class="ghost-btn" style="flex:1" onclick="closeSettingsModal()">關閉</button>
     </div>
     <div style="text-align:center; margin-top:14px;">
-      <span style="font-size:calc(10px * var(--font-scale)); color:#CBD5E1;">版本 <span id="app-version-tag">2026-08-07</span></span>
+      <span style="font-size:calc(10px * var(--font-scale)); color:#CBD5E1;">版本 <span id="app-version-tag">2026-08-07-2</span></span>
     </div>
   </div>
 </div>
@@ -1047,14 +1047,29 @@ Day2 12:00 outlet購物，預計逛一小時
   }
 
   function escapeHtml(s) { const div = document.createElement('div'); div.textContent = s === null || s === undefined ? '' : String(s); return div.innerHTML; }
-  // 從AI回應中穩健地取出JSON（就算AI在前後多加了說明文字或不同大小寫的code fence也能正確擷取）
+  // 從AI回應中穩健地取出JSON（就算AI在前後多加了說明文字或不同大小寫的code fence也能正確擷取）。
+  // 用括號配對深度掃描，而非單純貪婪正則：正則會從文字中第一個[比對到最後一個]，
+  // 遇到「物件包陣列」（例如收據格式 {"item":...,"items":[...]}）會誤判成只擷取內層陣列，
+  // 若該陣列剛好是空的（AI覺得不需要逐項列出時）還會被誤判成「內容是空的」而報錯。
   function extractJsonBlock(text) {
     let cleaned = (text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
-    const arrMatch = cleaned.match(/\[[\s\S]*\]/);
-    if (arrMatch) return arrMatch[0];
-    const objMatch = cleaned.match(/\{[\s\S]*\}/);
-    if (objMatch) return objMatch[0];
-    return cleaned;
+    let startIdx = -1, openChar = '', closeChar = '';
+    for (let i = 0; i < cleaned.length; i++) {
+      if (cleaned[i] === '[' || cleaned[i] === '{') { startIdx = i; openChar = cleaned[i]; closeChar = (openChar === '[') ? ']' : '}'; break; }
+    }
+    if (startIdx === -1) return cleaned;
+
+    let depth = 0, inString = false, escapeNext = false;
+    for (let i = startIdx; i < cleaned.length; i++) {
+      const ch = cleaned[i];
+      if (escapeNext) { escapeNext = false; continue; }
+      if (ch === '\\' && inString) { escapeNext = true; continue; }
+      if (ch === '"') { inString = !inString; continue; }
+      if (inString) continue;
+      if (ch === openChar) depth++;
+      else if (ch === closeChar) { depth--; if (depth === 0) return cleaned.substring(startIdx, i + 1); }
+    }
+    return cleaned.substring(startIdx);
   }
   function todayOrTripDate() { const now = new Date(); return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`; }
 
