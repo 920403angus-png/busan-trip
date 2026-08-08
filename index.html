@@ -532,7 +532,7 @@ Day2 12:00 outlet購物，預計逛一小時
       <button class="ghost-btn" style="flex:1" onclick="closeSettingsModal()">關閉</button>
     </div>
     <div style="text-align:center; margin-top:14px;">
-      <span style="font-size:calc(10px * var(--font-scale)); color:#CBD5E1;">版本 <span id="app-version-tag">2026-08-07-2</span></span>
+      <span style="font-size:calc(10px * var(--font-scale)); color:#CBD5E1;">版本 <span id="app-version-tag">2026-08-07-3</span></span>
     </div>
   </div>
 </div>
@@ -1787,17 +1787,25 @@ ${dayContextLines}
   function parseItinAiResponse() {
     const raw = document.getElementById('itin-ai-response-paste').value.trim();
     if (!raw) { alert('請先貼上 AI 的回答！'); return; }
+    let items;
     try {
       const cleaned = extractJsonBlock(raw);
-      const items = JSON.parse(cleaned);
-      if (!Array.isArray(items) || items.length === 0) throw new Error('empty');
+      items = JSON.parse(cleaned);
+      if (!Array.isArray(items) || items.length === 0) throw new Error('AI 回答中沒有偵測到有效的行程項目陣列');
+    } catch (e) {
+      console.error('行程AI回答解析失敗:', e, '\n原始內容:', raw);
+      alert(`無法解析這段內容，請確認是否完整貼上 AI 回答的 JSON 陣列（應該是用 [ 開頭、] 結尾的內容）。\n\n技術訊息：${e.message}`);
+      return;
+    }
+    try {
       document.getElementById('itin-ai-response-paste').value = '';
       const statusEl = document.getElementById('itin-ai-status');
       if (statusEl) { statusEl.style.display = 'none'; statusEl.innerHTML = ''; }
       resetItinAiInputs();
       finalizeParsedItems(items);
     } catch (e) {
-      alert('無法解析這段內容，請確認是否完整貼上 AI 回答的 JSON 陣列（應該是用 [ 開頭、] 結尾的內容）。');
+      console.error('行程項目匯入失敗:', e);
+      alert(`JSON 已成功解析，但匯入行程時發生錯誤，請截圖此訊息並回報。\n\n技術訊息：${e.message}`);
     }
   }
 
@@ -2176,17 +2184,25 @@ ${dayContextLines}
   function parseReceiptAiResponse() {
     const raw = document.getElementById('receipt-ai-response-paste').value.trim();
     if (!raw) { alert('請先貼上 AI 的回答！'); return; }
+    let parsed;
     try {
       const cleaned = extractJsonBlock(raw);
-      const parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(cleaned);
       const isEmpty = Array.isArray(parsed) ? parsed.length === 0 : !parsed || Object.keys(parsed).length === 0;
-      if (isEmpty) throw new Error('empty');
+      if (isEmpty) throw new Error('AI 回答中沒有偵測到有效的收據內容');
+    } catch (e) {
+      console.error('收據AI回答解析失敗:', e, '\n原始內容:', raw);
+      alert(`無法解析這段內容，請確認是否完整貼上 AI 回答的內容。\n\n技術訊息：${e.message}`);
+      return;
+    }
+    try {
       const panel = document.getElementById('receipt-ai-panel');
       if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
       receiptSelectedFile = null;
       openReceiptReview(parsed);
     } catch (e) {
-      alert('無法解析這段內容，請確認是否完整貼上 AI 回答的內容。');
+      console.error('收據明細顯示失敗:', e);
+      alert(`JSON 已成功解析，但顯示明細時發生錯誤，請截圖此訊息並回報。\n\n技術訊息：${e.message}`);
     }
   }
 
