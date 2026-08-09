@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>釜山行 2026 · 旗艦版 V17 Pro (Firebase 雲端同步版)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=400;500;700;900&family=Quicksand:wght=500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <!-- 引入 Firebase 官方 CDN -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -16,18 +16,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.11.0/mammoth.browser.min.js"></script>
 <style>
   :root {
-    --bg: #F5F7FA; --card: #FFFFFF; --navy: #1A2B3C; --coral: #FF8E7E;
-    --teal: #5B9EA2; --gold: #C5A07A; --gray: #8A929C; --line: rgba(0,0,0,0.06);
-    --warn: #E4572E; --warn-bg: #FFF5F2; --warn-border: #FF8E7E;
+    --bg: #F5F7FA; --card: #FFFFFF; --navy: #1D2B45; --coral: #FF8A84;
+    --teal: #49B8D0; --gold: #C5A07A; --gray: #98A2B3; --line: rgba(0,0,0,0.06);
+    --text-general: #49566B; --text-secondary: #667085; --success: #28C76F;
+    --warn: #FF5A5F; --warn-bg: #FFF5F2; --warn-border: #FF8E7E;
     --note-bg: #FFFDF2; --note-border: #F1C40F;
-    --btn-orange: linear-gradient(135deg, #FFAD99 0%, #FF8E7E 100%);
+    --btn-orange: linear-gradient(135deg, #FFAD99 0%, #FF8A84 100%);
     --glass: rgba(255, 255, 255, 0.9);
     --font-scale: 1;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
-    font-family: 'Quicksand', 'Noto Sans TC', sans-serif;
-    background-color: #E9EDF0; color: var(--navy);
+    font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif;
+    background-color: #E9EDF0; color: var(--text-general); font-weight: 600;
     margin: 0; padding: 0; font-size:calc(16px * var(--font-scale)); line-height: 1.5;
   }
   
@@ -54,7 +55,7 @@
   }
   .switch-btn.active { background: var(--navy); color: white; }
   
-  .clean-title { font-family: 'Noto Sans TC', sans-serif; font-weight: 800; font-size:calc(28px * var(--font-scale)); margin: 0; letter-spacing: -0.5px; color: var(--navy); }
+  .clean-title { font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-weight: 800; font-size:calc(28px * var(--font-scale)); margin: 0; letter-spacing: -0.5px; color: var(--navy); }
   
   .hero-header {
     background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);
@@ -68,16 +69,16 @@
   }
   .page-header { padding: 35px 12px 15px; }
   .card { background: var(--card); border-radius: 28px; padding: 22px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.02); border: 1px solid var(--line); }
-  .section-title { font-family: 'Noto Sans TC'; font-size:calc(18px * var(--font-scale)); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; color: var(--navy); }
+  .section-title { font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-size:calc(18px * var(--font-scale)); font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; color: var(--navy); }
   .calc-tabs { display: flex; background: #E2E7EC; border-radius: 20px; padding: 4px; margin-bottom: 20px; }
-  .tab-btn-sub { flex: 1; border: none; background: none; padding: 10px; border-radius: 16px; font-weight: 700; font-size:calc(14px * var(--font-scale)); color: #7A828A; cursor: pointer; transition: 0.3s; }
+  .tab-btn-sub { flex: 1; border: none; background: none; padding: 10px; border-radius: 16px; font-weight: 700; font-size:calc(14px * var(--font-scale)); color: var(--gray); cursor: pointer; transition: 0.3s; }
   .tab-btn-sub.active { background: #fff; color: var(--navy); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
   
-  .input-label { font-size:calc(13px * var(--font-scale)); color: var(--gray); font-weight: 700; margin-bottom: 8px; display: block; padding-left: 6px; }
+  .input-label { font-size:calc(13px * var(--font-scale)); color: var(--text-secondary); font-weight: 700; margin-bottom: 8px; display: block; padding-left: 6px; }
   .input-field { position: relative; margin-bottom: 20px; }
   .input-field input {
     width: 100%; border: 2.5px solid #E9EDF0; border-radius: 18px; padding: 16px 16px 16px 50px;
-    font-size:calc(22px * var(--font-scale)); font-family: 'Quicksand'; font-weight: 700; outline: none; background: #FAFBFC; transition: 0.3s; color: var(--navy);
+    font-size:calc(22px * var(--font-scale)); font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-weight: 700; outline: none; background: #FAFBFC; transition: 0.3s; color: var(--navy);
   }
   .input-field input:focus { border-color: var(--teal); background: #fff; }
   .input-field .pre { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--gold); font-weight: 700; font-size:calc(22px * var(--font-scale)); }
@@ -85,15 +86,15 @@
   .smart-stepper { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
   .step-btn { width: 46px; height: 46px; border-radius: 16px; border: none; background: #E2E7EC; color: var(--navy); cursor: pointer; font-size:calc(20px * var(--font-scale)); font-weight: 700; display: flex; align-items: center; justify-content: center; }
   .step-input-box { flex: 1; position: relative; }
-  .step-input-box input { width: 100%; border: 2.5px solid #E9EDF0; border-radius: 16px; padding: 10px; text-align: center; font-family: 'Quicksand'; font-weight: 700; font-size:calc(18px * var(--font-scale)); outline: none; }
+  .step-input-box input { width: 100%; border: 2.5px solid #E9EDF0; border-radius: 16px; padding: 10px; text-align: center; font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-weight: 700; font-size:calc(18px * var(--font-scale)); outline: none; }
   
   .final-res-card { background: var(--navy); color: #fff; border-radius: 36px; padding: 30px 20px; text-align: center; box-shadow: 0 15px 35px rgba(26,43,60,0.15); border: 1px solid rgba(255,255,255,0.05); }
-  .final-res-card .twd { font-family: 'Quicksand'; font-size:calc(42px * var(--font-scale)); font-weight: 700; color: var(--coral); margin: 6px 0; }
-  .final-res-card .krw { font-family: 'Quicksand'; font-size:calc(16px * var(--font-scale)); opacity: 0.7; font-weight: 500; }
+  .final-res-card .twd { font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-size:calc(42px * var(--font-scale)); font-weight: 700; color: var(--coral); margin: 6px 0; }
+  .final-res-card .krw { font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-size:calc(16px * var(--font-scale)); opacity: 0.7; font-weight: 500; }
   
   .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 420px; height: 76px; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 38px; box-shadow: 0 10px 35px rgba(0,0,0,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 1500; padding: 0 8px; border: 1px solid rgba(255,255,255,0.6); }
   body.tablet-view .bottom-nav { max-width: 800px; }
-  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; color: #A0ACB6; border: none; background: none; font-size:calc(11px * var(--font-scale)); font-weight: 700; cursor: pointer; transition: 0.3s; }
+  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; color: var(--gray); border: none; background: none; font-size:calc(11px * var(--font-scale)); font-weight: 600; cursor: pointer; transition: 0.3s; }
   .nav-btn.active { color: var(--teal); }
   .nav-btn i { font-size:calc(20px * var(--font-scale)); margin-bottom: 4px; transition: 0.3s; }
   .nav-btn.active i { transform: translateY(-4px) scale(1.1); }
@@ -101,7 +102,7 @@
   .panel.active { display: block; }
   
   .countdown-chip { background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); border-radius: 16px; padding: 8px 14px; text-align:center; border: 1px solid rgba(255,255,255,0.25); }
-  .countdown-chip .cd-num { display:block; font-family:'Quicksand'; font-size:calc(20px * var(--font-scale)); font-weight:800; color: var(--coral); line-height:1; }
+  .countdown-chip .cd-num { display:block; font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-size:calc(20px * var(--font-scale)); font-weight:800; color: var(--coral); line-height:1; }
   .countdown-chip .cd-label { display:block; font-size:calc(10px * var(--font-scale)); opacity: 0.9; margin-top:2px; }
   
   .bp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; font-size:calc(13px * var(--font-scale)); background: #FAFBFC; padding: 12px; border-radius: 16px; }
@@ -111,13 +112,13 @@
 
   .dual-card-row { display:flex; gap: 12px; margin-bottom: 6px; }
   .mini-card { flex:1; padding: 16px; margin-bottom:0; text-align:center; }
-  .mini-label { font-size:calc(12px * var(--font-scale)); color: var(--gray); font-weight:700; margin-bottom:6px; display:flex; align-items:center; justify-content:center; gap:4px; }
-  .mini-value { font-family:'Quicksand'; font-size:calc(18px * var(--font-scale)); font-weight:700; color: var(--teal); }
+  .mini-label { font-size:calc(12px * var(--font-scale)); color: var(--text-secondary); font-weight:700; margin-bottom:6px; display:flex; align-items:center; justify-content:center; gap:4px; }
+  .mini-value { font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-size:calc(18px * var(--font-scale)); font-weight:700; color: var(--teal); }
   .mini-sub { font-size:calc(10px * var(--font-scale)); color: var(--gray); margin-top: 3px; font-weight:600; }
   .climate-note { background: #EBF2F3; border-radius: 16px; padding: 12px 16px; font-size:calc(13px * var(--font-scale)); color: #4A6B6C; margin: 12px 0 18px; display:flex; align-items:center; gap:8px; }
 
   .edit-pill { margin-left:auto; background:#E2E7EC; border:none; width:28px; height:28px; border-radius:50%; color:var(--navy); cursor:pointer; font-size:calc(11px * var(--font-scale)); display: inline-flex; align-items: center; justify-content: center; }
-  .ghost-btn { width:100%; background:none; border:2px solid var(--navy); color:var(--navy); padding:12px; border-radius:18px; font-weight:700; font-size:calc(14px * var(--font-scale)); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Noto Sans TC'; }
+  .ghost-btn { width:100%; background:none; border:2px solid var(--navy); color:var(--navy); padding:12px; border-radius:18px; font-weight:700; font-size:calc(14px * var(--font-scale)); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; }
 
   .day-pill-row::-webkit-scrollbar, .day-tab-row::-webkit-scrollbar { height: 4px; }
   .day-pill-row::-webkit-scrollbar-thumb, .day-tab-row::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
@@ -141,7 +142,7 @@
   
   .contact-row { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1.5px solid var(--line); font-size:calc(14.5px * var(--font-scale)); }
   .contact-row:last-child { border-bottom:none; padding-bottom:0; }
-  .contact-row a { color:var(--coral); font-family:'Quicksand'; font-weight:700; text-decoration:none; font-size:calc(15px * var(--font-scale)); background: #FFF1F0; padding: 4px 10px; border-radius: 8px; }
+  .contact-row a { color:var(--coral); font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-weight:700; text-decoration:none; font-size:calc(15px * var(--font-scale)); background: #FFF1F0; padding: 4px 10px; border-radius: 8px; }
 
   .timeline-container { position: relative; padding-left: 20px; margin: 15px 5px; }
   .timeline-container::before { content: ''; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 2px; border-left: 2px dashed #CBD5E1; }
@@ -149,9 +150,9 @@
   .timeline-dot { position: absolute; left: -20px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--teal); border: 2px solid white; box-shadow: 0 0 0 3px rgba(91,158,162,0.2); }
   .timeline-card { background: white; border-radius: 20px; border: 1px solid var(--line); padding: 16px; cursor: pointer; transition: 0.3s; position: relative; }
   .timeline-card:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.03); }
-  .timeline-time { font-family: 'Quicksand'; font-weight: 700; font-size:calc(14px * var(--font-scale)); color: var(--teal); margin-bottom: 4px; }
+  .timeline-time { font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-weight: 700; font-size:calc(14px * var(--font-scale)); color: var(--teal); margin-bottom: 4px; }
   .timeline-title { font-weight: 700; font-size:calc(16px * var(--font-scale)); color: var(--navy); }
-  .timeline-detail { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); font-size:calc(13.5px * var(--font-scale)); color: #555; }
+  .timeline-detail { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); font-size:calc(13.5px * var(--font-scale)); color: var(--text-general); }
   .timeline-detail.active { display: block; }
   .detail-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .detail-row i { color: var(--gold); width: 16px; text-align: center; }
@@ -185,7 +186,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-family: 'Noto Sans TC';
+    font-family: "SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif;
     box-shadow: 0 4px 12px rgba(255,142,126,0.2);
     transition: all 0.2s ease;
   }
@@ -297,7 +298,7 @@
             <li><b>行動電源/鋰電池：</b>只能放隨身行李,不可託運。</li>
             <li><b>肉類製品：</b>肉乾、肉鬆、香腸、火腿等一律禁止攜帶入境。</li>
         </ul>
-        <p class="warn-footnote" style="font-size:calc(11.5px * var(--font-scale)); color:#943126; margin-top:10px; border-top:1px dashed rgba(228,87,46,0.25); padding-top:6px; font-weight: bold;">※ 法規隨時異動，出發前請再次確認各官網最新公告。</p>
+        <p class="warn-footnote" style="font-size:calc(11.5px * var(--font-scale)); color:#943126; margin-top:10px; border-top:1px dashed rgba(228,87,46,0.25); padding-top:6px; font-weight: 400;">※ 法規隨時異動，出發前請再次確認各官網最新公告。</p>
     </div>
 
     <div class="calc-tabs" id="prep-main-tabs" style="margin-bottom:16px;">
@@ -532,7 +533,7 @@ Day2 12:00 outlet購物，預計逛一小時
       <button class="ghost-btn" style="flex:1" onclick="closeSettingsModal()">關閉</button>
     </div>
     <div style="text-align:center; margin-top:14px;">
-      <span style="font-size:calc(10px * var(--font-scale)); color:#CBD5E1;">版本 <span id="app-version-tag">2026-08-07-3</span></span>
+      <span style="font-size:calc(10px * var(--font-scale)); color:#CBD5E1;">版本 <span id="app-version-tag">2026-08-08</span></span>
     </div>
   </div>
 </div>
@@ -1118,7 +1119,7 @@ Day2 12:00 outlet購物，預計逛一小時
     const row = document.getElementById('day-pill-row'); if (!row) return;
     row.innerHTML = ITIN_DAYS.map(d => `
       <div class="day-pill" onclick="goToItinerary('${d.key}')" style="flex:0 0 auto; background:#fff; border:1px solid var(--line); border-radius:16px; padding:10px 14px; text-align:center; min-width:68px; cursor:pointer;">
-        <span class="dp-date" style="display:block; font-family:'Quicksand'; font-weight:700; font-size:calc(13px * var(--font-scale));">${d.date}</span><span class="dp-wd" style="display:block; font-size:calc(10px * var(--font-scale)); color:var(--gray); margin:2px 0;">週${d.wd}</span><span class="dp-status" id="dp-status-${d.key}" style="display:block; font-size:calc(10px * var(--font-scale)); color:var(--teal); font-weight:700;">--</span>
+        <span class="dp-date" style="display:block; font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-weight:700; font-size:calc(13px * var(--font-scale));">${d.date}</span><span class="dp-wd" style="display:block; font-size:calc(10px * var(--font-scale)); color:var(--gray); margin:2px 0;">週${d.wd}</span><span class="dp-status" id="dp-status-${d.key}" style="display:block; font-size:calc(10px * var(--font-scale)); color:var(--teal); font-weight:700;">--</span>
       </div>
     `).join('');
     updateDayPillStatuses();
@@ -1274,7 +1275,7 @@ Day2 12:00 outlet購物，預計逛一小時
       headline = `${escapeHtml(entry.name || '票券')}${entry.durationHours ? ' · '+escapeHtml(String(entry.durationHours))+'小時方案' : ''}`;
       const expiryMs = calcPassExpiry(entry);
       sub = expiryMs ? `到期：${formatKoreaDateTime(expiryMs)} (韓國時間)` : '尚未設定啟用時間';
-      extra = `<div class="pass-countdown" data-expiry="${expiryMs||''}" style="font-family:'Quicksand'; font-weight:800; font-size:calc(16px * var(--font-scale)); color:var(--teal); margin-top:8px;">計算中...</div>`;
+      extra = `<div class="pass-countdown" data-expiry="${expiryMs||''}" style="font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-weight:800; font-size:calc(16px * var(--font-scale)); color:var(--teal); margin-top:8px;">計算中...</div>`;
     }
 
     const detailRows = schema.fields
@@ -1332,7 +1333,7 @@ Day2 12:00 outlet購物，預計逛一小時
     wrap.innerHTML = flights.map(f => `
       <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line);">
         <div>
-          <b style="font-family:'Quicksand'; font-size:calc(16px * var(--font-scale)); color:var(--navy);">${escapeHtml(f.depCode||'?')} → ${escapeHtml(f.arrCode||'?')}</b>
+          <b style="font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-size:calc(16px * var(--font-scale)); color:var(--navy);">${escapeHtml(f.depCode||'?')} → ${escapeHtml(f.arrCode||'?')}</b>
           <div style="font-size:calc(11.5px * var(--font-scale)); color:var(--gray); margin-top:2px;">${escapeHtml(f.label||'')} ${escapeHtml(f.flightNo||'')}</div>
         </div>
         <div style="text-align:right; font-size:calc(12.5px * var(--font-scale)); color:var(--navy); font-weight:700;">${f.date?formatMDLabel(f.date):'未填'} ${escapeHtml(f.time||'')}</div>
@@ -1429,7 +1430,7 @@ Day2 12:00 outlet購物，預計逛一小時
 
   function renderDayTabs() {
     const wrap = document.getElementById('itin-day-tabs'); if(!wrap) return;
-    wrap.innerHTML = ITIN_DAYS.map(d => `<div class="day-tab ${d.key===activeDay?'active':''}" onclick="selectDay('${d.key}')" style="flex:0 0 auto; background:#fff; border:1.5px solid var(--line); border-radius:14px; padding:8px 12px; text-align:center; min-width:64px; cursor:pointer;"><span style="display:block; font-family:'Quicksand'; font-weight:700; font-size:calc(13px * var(--font-scale));">${d.date}</span><span style="display:block; font-size:calc(10px * var(--font-scale)); margin-top:2px;">週${d.wd}</span></div>`).join('');
+    wrap.innerHTML = ITIN_DAYS.map(d => `<div class="day-tab ${d.key===activeDay?'active':''}" onclick="selectDay('${d.key}')" style="flex:0 0 auto; background:#fff; border:1.5px solid var(--line); border-radius:14px; padding:8px 12px; text-align:center; min-width:64px; cursor:pointer;"><span style="display:block; font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-weight:700; font-size:calc(13px * var(--font-scale));">${d.date}</span><span style="display:block; font-size:calc(10px * var(--font-scale)); margin-top:2px;">週${d.wd}</span></div>`).join('');
     wrap.querySelectorAll('.day-tab').forEach(tab => { if(tab.classList.contains('active')) { tab.style.background = 'var(--navy)'; tab.style.color = '#fff'; } });
   }
   function selectDay(key) { activeDay = key; renderDayTabs(); renderDayContent(); }
@@ -1998,7 +1999,7 @@ ${dayContextLines}
   function renderHeroSyncStatus() {
     const wrap = document.getElementById('hero-sync-status'); if (!wrap) return;
     wrap.innerHTML = syncRoomId
-      ? `<i class="fa-solid fa-cloud" style="font-size:calc(15px * var(--font-scale)); opacity:0.9;"></i><span style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.2;"><span style="font-size:calc(9.5px * var(--font-scale)); opacity:0.85; font-weight:600;">房號</span><span style="font-size:calc(16px * var(--font-scale)); font-weight:800; letter-spacing:0.5px; font-family:'Quicksand';">${escapeHtml(syncRoomId)}</span></span>`
+      ? `<i class="fa-solid fa-cloud" style="font-size:calc(15px * var(--font-scale)); opacity:0.9;"></i><span style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.2;"><span style="font-size:calc(9.5px * var(--font-scale)); opacity:0.85; font-weight:600;">房號</span><span style="font-size:calc(16px * var(--font-scale)); font-weight:800; letter-spacing:0.5px; font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif;">${escapeHtml(syncRoomId)}</span></span>`
       : `<i class="fa-solid fa-cloud-arrow-up" style="font-size:calc(14px * var(--font-scale));"></i><span style="font-size:calc(12px * var(--font-scale)); font-weight:700;">尚未雲端同步</span>`;
   }
   function addMemberFromSettings() {
@@ -2429,7 +2430,7 @@ ${dayContextLines}
           <div style="font-size:calc(11.5px * var(--font-scale)); color:var(--gray); margin-top:4px;">${metaBits}</div>
         </div>
         <div style="text-align:right; flex-shrink:0;">
-          <b style="color:var(--coral); font-family:'Quicksand'; font-size:calc(16px * var(--font-scale));">${primary}</b><br>
+          <b style="color:var(--coral); font-family:"SF Pro Display", "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif; font-size:calc(16px * var(--font-scale));">${primary}</b><br>
           <small style="color:var(--gray); font-size:calc(11px * var(--font-scale));">${secondary}</small>
         </div>
       </div>
